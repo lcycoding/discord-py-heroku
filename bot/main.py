@@ -1,16 +1,23 @@
 import os
-from discord.ext import commands
+import discord
+client = discord.Client()
 
-bot = commands.Bot(command_prefix="!")
+@client.event
+async def on_ready():
+    print('目前登入身份：',client.user)
+    game = discord.Game('擊潰廣告人')
+    await client.change_presence(status=discord.Status.idle, activity=game)
+    
+@client.event
+async def on_message(message):
+    if message.author == client.user:
+        return
+    else:
+        if '@everyone' in message.content:
+            if len(message.author.roles) <= 3:
+                await message.delete()
+
 TOKEN = os.getenv("DISCORD_TOKEN")
 
-@bot.event
-async def on_ready():
-    print(f"Logged in as {bot.user.name}({bot.user.id})")
-
-@bot.command()
-async def ping(ctx):
-    await ctx.send("pong")
-
 if __name__ == "__main__":
-    bot.run(TOKEN)
+    client.run(TOKEN)
